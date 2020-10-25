@@ -1,0 +1,1 @@
+/home/singh/catkin_ws/devel/.private/ros_logs/lib/pkgconfig/ros_logs.pc

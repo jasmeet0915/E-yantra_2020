@@ -1,0 +1,5 @@
+sahayak_bot/ros_logs
+/home/singh/catkin_ws/devel/.private/ros_logs/cmake.lock /home/singh/catkin_ws/devel/./cmake.lock
+/home/singh/catkin_ws/devel/.private/ros_logs/lib/pkgconfig/ros_logs.pc /home/singh/catkin_ws/devel/lib/pkgconfig/ros_logs.pc
+/home/singh/catkin_ws/devel/.private/ros_logs/share/ros_logs/cmake/ros_logsConfig-version.cmake /home/singh/catkin_ws/devel/share/ros_logs/cmake/ros_logsConfig-version.cmake
+/home/singh/catkin_ws/devel/.private/ros_logs/share/ros_logs/cmake/ros_logsConfig.cmake /home/singh/catkin_ws/devel/share/ros_logs/cmake/ros_logsConfig.cmake

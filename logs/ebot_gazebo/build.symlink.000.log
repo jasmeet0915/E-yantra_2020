@@ -1,0 +1,3 @@
+Symlinking /home/singh/catkin_ws/devel/lib/pkgconfig/ebot_gazebo.pc
+Symlinking /home/singh/catkin_ws/devel/share/ebot_gazebo/cmake/ebot_gazeboConfig.cmake
+Symlinking /home/singh/catkin_ws/devel/share/ebot_gazebo/cmake/ebot_gazeboConfig-version.cmake

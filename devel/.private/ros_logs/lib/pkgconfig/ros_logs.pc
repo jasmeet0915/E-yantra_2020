@@ -1,0 +1,8 @@
+prefix=/home/singh/catkin_ws/devel/.private/ros_logs
+
+Name: ros_logs
+Description: Description of ros_logs
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

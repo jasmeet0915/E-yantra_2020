@@ -1,0 +1,8 @@
+prefix=/home/singh/catkin_ws/devel/.private/ebot_description
+
+Name: ebot_description
+Description: Description of ebot_description
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
