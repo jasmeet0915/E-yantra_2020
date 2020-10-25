@@ -10,7 +10,7 @@
 
     <arg name="x" default="0"/>
         <arg name="y" default="0"/>
-        <arg name="z" default="0.18"/>
+        <arg name="z" default="0"/>
         
 
         <!-- Spawn the robot model -->
@@ -20,15 +20,15 @@
         
  <!--run controller node file-->
 
-  <!-- <node pkg="ebot_controller" name="controller" type="controller.py" > 
+  <node pkg="ebot_controller" name="controller" type="controller.py" > 
   </node>
--->
+
 
 
 <!--Uncomment these lines when you want to submit the task1-->
 
 
-<!--<arg name="record" default="true"/>
+<arg name="record" default="true"/>
 <arg name="duration" default="10"/>
 <arg name="rec_name" default="task1.bag"/>
 
@@ -40,7 +40,8 @@
 </group>
 
 <arg name="ws"  /> 
-  <node pkg="ros_logs" type="auto_task1_log" name="auto_task1_log"  args="$(arg ws)" output="screen"/>-->
+  <node pkg="ros_logs" type="auto_task1_log" name="auto_task1_log"  args="$(arg ws)" output="screen"/>
+
 
 
 
