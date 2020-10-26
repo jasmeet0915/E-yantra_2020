@@ -1,0 +1,8 @@
+prefix=/home/singh/catkin_ws/devel/.private/ebot_controller
+
+Name: ebot_controller
+Description: Description of ebot_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

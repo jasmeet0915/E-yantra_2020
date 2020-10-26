@@ -1,0 +1,8 @@
+prefix=/home/singh/catkin_ws/install
+
+Name: ebot_controller
+Description: Description of ebot_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

@@ -1,14 +1,23 @@
+#! /usr/bin/env python
+
 import rospy
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 
 from tf.transformations import euler_from_quaternion
-import math
+import numpy as np
 
 
-def Waypoints(t):
-    pass
+def waypoints(res):
+
+    # create a numpy array of 'res' points in range 0 to 2*pi
+    x = np.linspace(0, 2*np.pi, num = res, endpoint=True)
+
+    # create a numpy array of given path function 
+    y = 2 * np.sin(x) * np.sin(x/2)
+
+    return [x, y]
 
 
 def laser_callback(msg):
@@ -16,7 +25,13 @@ def laser_callback(msg):
 
 
 def odom_callback(data):
-    pass
+    global pose
+    x  = data.pose.pose.orientation.x;
+    y  = data.pose.pose.orientation.y;
+    z = data.pose.pose.orientation.z;
+    w = data.pose.pose.orientation.w;
+    pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler_from_quaternion([x,y,z,w])[2]]
+    rospy.loginfo("POSE DATA" + pose)
 
 
 def control_loop():
@@ -36,8 +51,14 @@ def control_loop():
     velocity_msg.angular.z = 0
     pub.publish(velocity_msg)
 
+    # get the list of x and y coords for the waypoints
+    path_x, path_y = waypoints(50)
+
+    rospy.loginfo(path_x)
+    rospy.loginfo(path_y)
 
     while not rospy.is_shutdown():
+
         rate.sleep()
         
 
