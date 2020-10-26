@@ -20,9 +20,9 @@
         
  <!--run controller node file-->
 
-  <node pkg="ebot_controller" name="controller" type="controller.py" > 
+<!--  <node pkg="ebot_controller" name="controller" type="controller.py" output="screen"> 
   </node>
-
+-->
 
 
 <!--Uncomment these lines when you want to submit the task1
