@@ -33,7 +33,14 @@ def waypoints(res):
 
 
 def laser_callback(msg):
-    pass
+    global regions
+    regions = {
+        'bright': min(msg.ranges[0:143]),
+        'fright': min(msg.ranges[144:287]),
+        'front':  min(msg.ranges[288:431])	,
+        'fleft':  min(msg.ranges[432:575])	,
+        'bleft':  min(msg.ranges[576:713])	,
+    }
 
 
 def odom_callback(data):
@@ -46,11 +53,11 @@ def odom_callback(data):
 
 
 # function to orient the bot towards the destination using Proportional controller
-def fix_yaw(error, P):
+def fix_yaw(error_a, P):
     global velocity_msg, pub
 
-    velocity_msg.linear.x = 0.1 
-    velocity_msg.angular.z = P * -error
+    velocity_msg.linear.x = 0.2 * np.abs(error_a) 
+    velocity_msg.angular.z = P * -error_a
 
     pub.publish(velocity_msg)
 
@@ -74,14 +81,18 @@ def goto(dest_x, dest_y):
     global state, pose
 
     # the required precision va;ues for required theta and distance from goal
-    theta_precision = 0.5  
-    dist_precision = 0.6
+    theta_precision = 0.16  
+    dist_precision = 0.35
 
 
     # while current state is not 2 (goal is not reached)
     while state != 2:
 
         theta_goal = np.arctan((dest_y - pose[1])/(dest_x - pose[0]))
+        if theta_goal>0:
+        	theta_goal+=0.04
+        elif theta_goal<0:
+        	theta_goal-=0.04
         bot_theta = pose[2]
 
         theta_error = round(bot_theta - theta_goal, 2)
@@ -96,7 +107,7 @@ def goto(dest_x, dest_y):
 
             if np.abs(theta_error) > theta_precision:   
                 rospy.loginfo("Fixing Yaw")
-                fix_yaw(theta_error, 0.5)
+                fix_yaw(theta_error, 1.7)
             else:
                 rospy.loginfo("Yaw Fixed! Moving Towards Goal Now")
                 state = 1
@@ -113,7 +124,7 @@ def goto(dest_x, dest_y):
             # if theta_precision and dist_precision are reached change state to 2 (goal reached)
             if position_error > dist_precision and np.abs(theta_error) < theta_precision:
                 rospy.loginfo("Moving Straight")
-                move_straight(position_error, 0.1)
+                move_straight(position_error, 0.2)
             elif np.abs(theta_error) > theta_precision: 
                 rospy.loginfo("Going out of line!")
                 state = 0
@@ -142,7 +153,7 @@ def control_loop():
     pub.publish(velocity_msg)
 
     # get the list of 10 x and y coords for the waypoints
-    path_x, path_y = waypoints(10)
+    path_x, path_y = waypoints(50)
 
     path_waypoints = zip(path_x, path_y)
     rospy.loginfo(path_waypoints)
