@@ -20,6 +20,11 @@ velocity_msg = Twist()
 # declare a global publisher variable
 pub = None
 
+def move(linear,angular):
+	global pub,velocity_msg
+	velocity_msg.linear.x = linear
+	velocity_msg.angular.z = angular
+	pub.publish(velocity_msg)
 
 def waypoints(res):
 
@@ -54,22 +59,14 @@ def odom_callback(data):
 
 # function to orient the bot towards the destination using Proportional controller
 def fix_yaw(error_a, P):
-    global velocity_msg, pub
 
-    velocity_msg.linear.x = 0.2 * np.abs(error_a) 
-    velocity_msg.angular.z = P * -error_a
-
-    pub.publish(velocity_msg)
+    move(0.2 * np.abs(error_a), P * -error_a)
 
 
 # function to move on a strainght line towards the goal using Proportional controller
 def move_straight(error, P):
-    global velocity_msg
     
-    velocity_msg.angular.z = 0
-    velocity_msg.linear.x = P * error
-    
-    pub.publish(velocity_msg)
+    move(P * error, 0)
 
 
 '''
@@ -148,15 +145,14 @@ def control_loop():
     rate = rospy.Rate(10)
 
     # publish 0 linear.x and 0 angular.z velocity to stop the bot initially
-    velocity_msg.linear.x = 0
-    velocity_msg.angular.z = 0
-    pub.publish(velocity_msg)
+    move(0,0)
 
     # get the list of 10 x and y coords for the waypoints
-    path_x, path_y = waypoints(50)
+    path_x, path_y = waypoints(1000)
 
     path_waypoints = zip(path_x, path_y)
     rospy.loginfo(path_waypoints)
+    rospy.loginfo(len(path_waypoints))
 
     while not rospy.is_shutdown():
 
