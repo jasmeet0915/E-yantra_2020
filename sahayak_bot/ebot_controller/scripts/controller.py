@@ -20,6 +20,22 @@ velocity_msg = Twist()
 # declare a global publisher variable
 pub = None
 
+d = 1.0
+
+dmax = 2.5
+
+d_state = 0
+
+regions = {
+        'right': 0,
+        'fright': 0,
+        'front': 0,
+        'fleft': 0,
+        'left': 0,
+}
+
+w_state = 0
+
 def move(linear,angular):
 	global pub,velocity_msg
 	velocity_msg.linear.x = linear
@@ -37,15 +53,55 @@ def waypoints(res):
     return [x, y]
 
 
+def check_wall():
+	global regions, w_state
+	if regions['front'] < dmax or regions['fleft'] < dmax or regions['fright'] < dmax:
+		w_state = 1
+		rospy.loginfo('wall detected')
+
+
+def avoid_wall():
+	wall_state = ''
+
+	if regions['front'] > d and regions['fleft'] > d and regions['fright'] > d:
+		wall_state = ' nothing'
+		move(0.3,-0.7)
+        #goto(12,12)
+	elif regions['front'] < d and regions['fleft'] > d and regions['fright'] > d:
+		wall_state = 'front'
+		move(0,2.0)
+	elif regions['front'] > d and regions['fleft'] > d and regions['fright'] < d:
+		wall_state = 'fright'
+		move(0,1.5)
+	elif regions['front'] > d and regions['fleft'] < d and regions['fright'] > d:
+		wall_state = 'fleft'
+		move(0.3,-0.9)
+	elif regions['front'] < d and regions['fleft'] > d and regions['fright'] < d:
+		wall_state = 'front and fright'
+		move(0,2.0)
+	elif regions['front'] < d and regions['fleft'] < d and regions['fright'] > d:
+		wall_state = 'front and fleft'
+		move(0,2.0)
+	elif regions['front'] < d and regions['fleft'] < d and regions['fright'] < d:
+		wall_state = 'ront and fleft and fright'
+		move(0,2.0)
+	elif regions['front'] > d and regions['fleft'] < d and regions['fright'] < d:
+		wall_state = 'fleft and fright'
+		move(0.3,-0.9)
+	print '%s' % (wall_state)
+
+
+
 def laser_callback(msg):
     global regions
     regions = {
-        'bright': min(msg.ranges[0:143]),
-        'fright': min(msg.ranges[144:287]),
-        'front':  min(msg.ranges[288:431])	,
-        'fleft':  min(msg.ranges[432:575])	,
-        'bleft':  min(msg.ranges[576:713])	,
+        'right':  min(min(msg.ranges[0:143]), 10),
+        'fright': min(min(msg.ranges[144:287]), 10),
+        'front':  min(min(msg.ranges[288:431]), 10),
+        'fleft':  min(min(msg.ranges[432:575]), 10),
+        'left':   min(min(msg.ranges[576:713]), 10),
     }
+    check_wall()
 
 
 def odom_callback(data):
@@ -60,7 +116,7 @@ def odom_callback(data):
 # function to orient the bot towards the destination using Proportional controller
 def fix_yaw(error_a, P):
 
-    move(0.2 * np.abs(error_a), P * -error_a)
+    move(0.1 * np.abs(error_a), P * -error_a)
 
 
 # function to move on a strainght line towards the goal using Proportional controller
@@ -121,7 +177,7 @@ def goto(dest_x, dest_y):
             # if theta_precision and dist_precision are reached change state to 2 (goal reached)
             if position_error > dist_precision and np.abs(theta_error) < theta_precision:
                 rospy.loginfo("Moving Straight")
-                move_straight(position_error, 0.2)
+                move_straight(position_error, 0.8)
             elif np.abs(theta_error) > theta_precision: 
                 rospy.loginfo("Going out of line!")
                 state = 0
@@ -131,7 +187,7 @@ def goto(dest_x, dest_y):
 
 
 def control_loop():
-    global pub, velocity_msg, state
+    global pub, velocity_msg, state, w_state, d_state 
 
     rospy.init_node('ebot_controller')
 
@@ -158,12 +214,18 @@ def control_loop():
 
         # is global pose list is not empty
         if pose:
-
+            if w_state == 0:
             # loop to move the bot to every point in the path_waypoints list
-            for (x, y) in path_waypoints:
-                state = 0
-                rospy.loginfo("Moving to point: " + str(x) + "," + str(y))
-                goto(round(x, 2), round(y, 2))
+                for (x, y) in path_waypoints:
+                    state = 0
+                    rospy.loginfo("Moving to point: " + str(x) + "," + str(y))
+                    goto(round(x, 2), round(y, 2))
+                    if w_state != 0:
+                        break
+            if w_state == 1:
+                avoid_wall()
+            if w_state == 2:
+                move(0,0)
 
         rate.sleep()
         
