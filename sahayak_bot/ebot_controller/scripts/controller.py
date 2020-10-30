@@ -57,7 +57,7 @@ def check_wall():
 	global regions, w_state
 	if regions['front'] < dmax or regions['fleft'] < dmax or regions['fright'] < dmax:
 		w_state = 1
-		
+		rospy.loginfo('wall detected')
 
 
 def avoid_wall():
@@ -111,7 +111,6 @@ def odom_callback(data):
     z = data.pose.pose.orientation.z;
     w = data.pose.pose.orientation.w;
     pose = [data.pose.pose.position.x, data.pose.pose.position.y, euler_from_quaternion([x,y,z,w])[2]]
-    chk_dist()
 
 
 # function to orient the bot towards the destination using Proportional controller
@@ -187,9 +186,9 @@ def goto(dest_x, dest_y):
                 state = 2
 
 def chk_dist():
-    global pose, d_state
-    distf = 2
-    if distf > np.sqrt(pow(0 - pose[1], 2) + pow(12 - pose[0], 2)):
+    global pose,d_state
+    distf = 2.5
+    if distf > np.sqrt(pow(0 - pose[1], 2) + pow(12.5 - pose[0], 2)):
         d_state = 1
 
 
@@ -231,8 +230,10 @@ def control_loop():
                         break
             if w_state == 1:
                 avoid_wall()
+                chk_dist()
         if d_state == 1:
-            goto(12.5,0.00)
+            move(0,0)
+        
 
         rate.sleep()
         
