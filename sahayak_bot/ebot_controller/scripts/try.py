@@ -57,7 +57,7 @@ def check_wall():
 	global regions, w_state
 	if regions['front'] < dmax or regions['fleft'] < dmax or regions['fright'] < dmax:
 		w_state = 1
-		rospy.loginfo('wall detected')
+		#rospy.loginfo('wall detected')
 
 
 def avoid_wall():
@@ -117,7 +117,7 @@ def odom_callback(data):
 def fix_yaw(error_a, P):
 
     move(0.1 * np.abs(error_a), P * -error_a)
-
+    #move(0, P * -error_a)
 
 # function to move on a strainght line towards the goal using Proportional controller
 def move_straight(error, P):
@@ -131,6 +131,7 @@ def move_straight(error, P):
     1) state = 0; fixing yaw 2) state = 1; moving straight 3) state = 2; goal reached 
 '''
 def goto(dest_x, dest_y):
+    print('goto ke andar')
     global state, pose
 
     # the required precision va;ues for required theta and distance from goal
@@ -181,13 +182,20 @@ def goto(dest_x, dest_y):
             elif np.abs(theta_error) > theta_precision: 
                 rospy.loginfo("Going out of line!")
                 state = 0
-            else:
+            elif position_error < dist_precision:
                 rospy.loginfo("GOAL REACHED")
                 state = 2
+    
+def chk_dist():
+    global pose,d_state
+    distf = 2.5
+    if distf > np.sqrt(pow(0 - pose[1], 2) + pow(12.5 - pose[0], 2)):
+        d_state = 1
+        rospy.loginfo('This is 1')
 
 
 def control_loop():
-    global pub, velocity_msg, state, w_state, d_state 
+    global pub, velocity_msg, state, w_state, d_state, pose
 
     rospy.init_node('ebot_controller')
 
@@ -209,11 +217,13 @@ def control_loop():
     path_waypoints = zip(path_x, path_y)
     rospy.loginfo(path_waypoints)
     rospy.loginfo(len(path_waypoints))
-
+    
     while not rospy.is_shutdown():
 
-        # is global pose list is not empty
-        if pose:
+        
+    # is global pose list is not empty
+     if pose:   
+        if d_state == 0:
             if w_state == 0:
             # loop to move the bot to every point in the path_waypoints list
                 for (x, y) in path_waypoints:
@@ -224,11 +234,15 @@ def control_loop():
                         break
             if w_state == 1:
                 avoid_wall()
-            if w_state == 2:
-                move(0,0)
-
+                chk_dist()
+        if d_state == 1:
+            state=0
+            goto(12.5,0.17)
+            #move(0,0)
+            break
         rate.sleep()
-        
+    move(0,0) 
+
 
 if __name__ == "__main__":
     try:

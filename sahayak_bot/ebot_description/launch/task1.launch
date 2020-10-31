@@ -10,7 +10,7 @@
 
     <arg name="x" default="0"/>
         <arg name="y" default="0"/>
-        <arg name="z" default="0"/>
+        <arg name="z" default="0.17"/>
         
 
         <!-- Spawn the robot model -->
@@ -50,3 +50,4 @@
   
   
 </launch>
+
