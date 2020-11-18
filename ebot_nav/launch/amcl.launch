@@ -1,0 +1,20 @@
+<launch>
+
+<node pkg="amcl" type="amcl" name="amcl" output="screen">
+
+  <remap from="scan" to="ebot/laser/scan" />
+  <remap from="cmd_vel" to="cmd_vel"/>
+  <remap from="odom" to="odom" />
+  
+  <rosparam file="$(find ebot_nav)/config/amcl_params.yaml" command="load" />
+  <!-- Publish scans from best pose at a max of 10 Hz -->
+
+</node>
+
+<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+  <param name="use_gui" value="True" />
+</node>
+
+<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+
+</launch>
